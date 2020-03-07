@@ -1,0 +1,57 @@
+version: '3'
+
+services:
+  proxy:
+    build: ./src/Nginx/
+    container_name: "proxi-nginx"
+    ports:
+      - "8080:80"
+    depends_on:
+      - apidotnet
+      - apinodejs
+    networks:
+      - mynetwork
+    volumes:
+      - ./src/Nginx/nginx.conf:/etc/nginx/nginx.conf
+
+  apidotnet:
+    build: ./src/DotnetApi/
+    container_name: api-dotnet
+    ports:
+      - 8081:80
+    depends_on:
+      - mongodb
+    networks:
+      - mynetwork
+    environment:
+      - CONNECTION_STRING=mongodb://db-mongodb
+      - BOOK_DATABASE=BookstoreDb
+      - BOOKS_COLLECTION=Books
+      - ASPNETCORE_ENVIRONMENT=Development
+
+  apinodejs:
+    build: ./src/NodeApi/
+    container_name: api-nodejs
+    ports:
+      - 8082:80
+    depends_on:
+      - mongodb
+    networks:
+      - mynetwork
+    environment:
+      - CONNECTION_STRING=mongodb://db-mongodb
+      - BOOK_DATABASE=BookstoreDb
+      - BOOKS_COLLECTION=Books
+
+  mongodb:
+    image: mongo:latest
+    container_name: db-mongodb
+    ports:
+      - "27014:27017"
+    networks:
+      - mynetwork
+volumes:
+  mongo:
+networks:  
+  mynetwork: # User-Defined Network with the name mynetwork
+    driver: bridge
