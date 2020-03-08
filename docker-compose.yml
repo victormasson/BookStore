@@ -50,8 +50,38 @@ services:
       - "27014:27017"
     networks:
       - mynetwork
+    volumes:
+      - mongo:/var/lib/mongo/data
+
+  postgresql:
+    image: postgres
+    container_name: db-postgresql
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - 5432:5432
+    networks:
+      - mynetwork
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: front-pgadmin
+    volumes:
+      - db-data:/var/lib/pgadmin4/data
+    ports:
+      - 5433:80
+    depends_on:
+      - postgresql
+    networks:
+      - mynetwork
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=postgres@postgres.com
+      - PGADMIN_DEFAULT_PASSWORD=postgres
 volumes:
   mongo:
+  db-data:
 networks:  
   mynetwork: # User-Defined Network with the name mynetwork
     driver: bridge

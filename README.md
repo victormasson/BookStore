@@ -11,5 +11,10 @@ docker-compose up -d
 
 - Build one service
 ```
-docker-compose up --no-deps --build [service name]
+docker-compose up -d --no-deps --build [service name]
 ```
+
+## TODO
+- Add postgREST
+- Separate domain into services
+- Add MQ 
