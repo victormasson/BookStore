@@ -1,0 +1,19 @@
+import { withRouter } from 'next/router'
+import BlogPost from '../components/layouts/blog-post'
+import Page from '../components/layouts/page'
+
+export const meta = {
+  title: 'Test page',
+  summary:
+    'Hi! This is a placeholder page. I thought that the header was too empty so I wanted to add an element to show how to add additional pages and put a small navigation here.',
+}
+
+export default withRouter(({ children, router }) => (
+  <Page path={router.pathname} meta={meta}>
+    {children}
+  </Page>
+))
+
+
+
+It's a page test

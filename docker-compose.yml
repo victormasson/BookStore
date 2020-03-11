@@ -1,19 +1,57 @@
 version: '3'
 
 services:
+  # -----------------------------------------------
+  # ---- Reverse proxy                         ----
+  # -----------------------------------------------
   proxy:
     build: ./src/Nginx/
-    container_name: "proxi-nginx"
+    container_name: proxi-nginx
     ports:
-      - "8080:80"
+      - 8080:80
     depends_on:
       - apidotnet
       - apinodejs
+      - apipostgrest
+      - frontreactjs
     networks:
       - mynetwork
     volumes:
       - ./src/Nginx/nginx.conf:/etc/nginx/nginx.conf
 
+  # -----------------------------------------------
+  # ---- OpenAPI                               ----
+  # -----------------------------------------------
+  swagger:
+    image: swaggerapi/swagger-ui
+    container_name: open-api
+    ports:
+      - 8084:8080
+    expose:
+      - 8084
+    depends_on:
+      - apipostgrest
+    networks:
+      - mynetwork
+    environment:
+      - API_URL=http://localhost:8083
+
+  # -----------------------------------------------
+  # ---- Front                                 ----
+  # -----------------------------------------------
+  frontreactjs:
+    build: ./src/ReactFront/
+    container_name: front-reactjs
+    ports:
+      - 8085:80
+    networks:
+      - mynetwork
+    environment: 
+      - PORT=80
+
+  # -----------------------------------------------
+  # ---- API                                   ----
+  # -----------------------------------------------
   apidotnet:
     build: ./src/DotnetApi/
     container_name: api-dotnet
@@ -43,6 +81,23 @@ services:
       - BOOK_DATABASE=BookstoreDb
       - BOOKS_COLLECTION=Books
 
+  apipostgrest:
+    image: postgrest/postgrest
+    container_name: api-postgrest
+    ports:
+      - 8083:3000
+    networks:
+      - mynetwork
+    depends_on:
+      - postgresql
+    environment:
+      - PGRST_DB_URI=postgres://postgres@postgresql/postgres
+      - PGRST_DB_SCHEMA=public
+      - PGRST_DB_ANON_ROLE=app_user
+
+  # -----------------------------------------------
+  # ---- Database                              ----
+  # -----------------------------------------------
   mongodb:
     image: mongo:latest
     container_name: db-mongodb
@@ -64,7 +119,14 @@ services:
       - 5432:5432
     networks:
       - mynetwork
+    # environment:
+      # - POSTGRES_DB=app_db
+      # - POSTGRES_USER=app_user
+      # - POSTGRES_PASSWORD=password
 
+  # -----------------------------------------------
+  # ---- Database Viewer                       ----
+  # -----------------------------------------------
   pgadmin:
     image: dpage/pgadmin4
     container_name: front-pgadmin
@@ -79,9 +141,11 @@ services:
     environment:
       - PGADMIN_DEFAULT_EMAIL=postgres@postgres.com
       - PGADMIN_DEFAULT_PASSWORD=postgres
+
 volumes:
   mongo:
   db-data:
+
 networks:  
   mynetwork: # User-Defined Network with the name mynetwork
     driver: bridge

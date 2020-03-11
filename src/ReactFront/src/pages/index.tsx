@@ -1,9 +1,0 @@
-import Layout from '../components/Layout'
-
-export default function Home() {
-  return (
-    <Layout title="Hello World !">
-      It's the first page
-    </Layout>
-  )
-}
