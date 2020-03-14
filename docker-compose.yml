@@ -9,6 +9,9 @@ services:
     container_name: proxi-nginx
     ports:
       - 8080:80
+    environment:
+      - NGINX_HOST=localhost
+      - NGINX_API_HOST=api.localhost
     depends_on:
       - apidotnet
       - apinodejs
@@ -27,14 +30,14 @@ services:
     container_name: open-api
     ports:
       - 8084:8080
-    expose:
-      - 8084
     depends_on:
+      - apidotnet
+      - apinodejs
       - apipostgrest
     networks:
       - mynetwork
     environment:
-      - API_URL=http://localhost:8083
+      - API_URL=http://api.localhost:8080/ js/ OR pgrest/ OR net/
 
   # -----------------------------------------------
   # ---- Front                                 ----
